@@ -31,16 +31,16 @@ def main():
         return
 
     if args.option == 'receiver':
-        port0 = args.port
+        port0 = int(args.port)
         for port in range(port0, port0+flows):
-            cmd = ['iperf', '-Z', 'bbr', '-s', '-p', port]
+            cmd = ['iperf', '-Z', 'bbr', '-s', '-p', str(port)]
             check_call(cmd)
         return
 
     if args.option == 'sender':
-        port0 = args.port
+        port0 = int(args.port)
         for port in range(port0, port0+flows):
-            cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', port,
+            cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', str(port),
                    '-t', '75']
             check_call(cmd)
         return
