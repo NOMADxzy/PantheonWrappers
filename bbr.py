@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-
-from subprocess import check_call
-
+# -*- coding: utf-8 -*-
+from subprocess import check_call, CalledProcessError
+from threading import Thread
 import arg_parser
 import context
 from helpers import kernel_ctl
@@ -18,6 +18,27 @@ def setup_bbr():
     kernel_ctl.check_qdisc('fq')
 
 
+def run_command(cmd):
+    try:
+        check_call(cmd)
+        print("Command succeeded:", cmd)
+    except CalledProcessError as e:
+        print("Command failed with return code", e.returncode, ":", cmd)
+
+
+def run_cmds_together(commands):
+    # 为每个命令创建一个线程
+    threads = []
+    for cmd in commands:
+        thread = Thread(target=run_command, args=(cmd,))
+        thread.start()
+        threads.append(thread)
+
+    # 等待所有线程完成
+    for thread in threads:
+        thread.join()
+
+
 def main():
     flows = 5
     args = arg_parser.receiver_first()
@@ -31,18 +52,22 @@ def main():
         return
 
     if args.option == 'receiver':
+        commands = []
         port0 = int(args.port)
-        for port in range(port0, port0+flows):
+        for port in range(port0, port0 + flows):
             cmd = ['iperf', '-Z', 'bbr', '-s', '-p', str(port)]
-            check_call(cmd)
+            commands.append(cmd)
+        run_cmds_together(commands=commands)
         return
 
     if args.option == 'sender':
+        commands = []
         port0 = int(args.port)
-        for port in range(port0, port0+flows):
+        for port in range(port0, port0 + flows):
             cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', str(port),
                    '-t', '75']
-            check_call(cmd)
+            commands.append(cmd)
+        run_cmds_together(commands=commands)
         return
 
 
