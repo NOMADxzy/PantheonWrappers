@@ -21,7 +21,6 @@ def setup_bbr():
 def main():
     flows = 5
     args = arg_parser.receiver_first()
-    port0 = args.port
 
     if args.option == 'deps':
         print 'iperf'
@@ -32,12 +31,14 @@ def main():
         return
 
     if args.option == 'receiver':
+        port0 = args.port
         for port in range(port0, port0+flows):
             cmd = ['iperf', '-Z', 'bbr', '-s', '-p', port]
             check_call(cmd)
         return
 
     if args.option == 'sender':
+        port0 = args.port
         for port in range(port0, port0+flows):
             cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', port,
                    '-t', '75']
