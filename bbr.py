@@ -5,6 +5,7 @@ from threading import Thread
 import arg_parser
 import context
 from helpers import kernel_ctl
+import sys
 
 
 def setup_bbr():
@@ -67,6 +68,8 @@ def main():
             cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', str(port),
                    '-t', '75']
             commands.append(cmd)
+
+            sys.stderr.write(str(cmd))
         run_cmds_together(commands=commands)
         return
 
