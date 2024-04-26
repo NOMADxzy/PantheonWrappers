@@ -6,6 +6,8 @@ import arg_parser
 import context
 from helpers import kernel_ctl
 import sys
+from concurrent.futures import ThreadPoolExecutor
+import concurrent
 
 
 def setup_bbr():
@@ -28,16 +30,20 @@ def run_command(cmd):
 
 
 def run_cmds_together(commands):
-    # 为每个命令创建一个线程
-    threads = []
-    for cmd in commands:
-        thread = Thread(target=run_command, args=(cmd,))
-        thread.start()
-        threads.append(thread)
+    with ThreadPoolExecutor(max_workers=len(commands)) as executor:
+        # 将命令映射到线程池上的工作者
+        future_to_cmd = {executor.submit(run_command, cmd): cmd for cmd in commands}
 
-    # 等待所有线程完成
-    for thread in threads:
-        thread.join()
+        # 获取结果
+        for future in concurrent.futures.as_completed(future_to_cmd):
+            cmd = future_to_cmd[future]
+            try:
+                result = future.result()
+                print(result)
+            except Exception as exc:
+                print('Command generated an exception: {} - {}'.format(cmd, exc))
+
+    print("All commands completed.")
 
 
 def main():
