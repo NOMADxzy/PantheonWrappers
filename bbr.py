@@ -23,7 +23,6 @@ def setup_bbr():
 
 def run_command(cmd):
     try:
-        sys.stderr.write(cmd + "\n")
         check_call(cmd)
         print("Command succeeded:", cmd)
     except CalledProcessError as e:
