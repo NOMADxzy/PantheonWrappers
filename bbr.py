@@ -23,6 +23,7 @@ def setup_bbr():
 
 def run_command(cmd):
     try:
+        sys.stderr.write(cmd + "\n")
         check_call(cmd)
         print("Command succeeded:", cmd)
     except CalledProcessError as e:
@@ -41,9 +42,9 @@ def run_cmds_together(commands):
                 result = future.result()
                 print(result)
             except Exception as exc:
-                print('Command generated an exception: {} - {}'.format(cmd, exc))
+                sys.stderr.write('Command generated an exception: {} - {}'.format(cmd, exc))
 
-    print("All commands completed.")
+    sys.stderr.write("All commands completed.")
 
 
 def run_flows(cmd, flows, port0, port_idx):
