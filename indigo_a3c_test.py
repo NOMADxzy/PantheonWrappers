@@ -18,7 +18,7 @@ def try_start_rpc_server(cc_repo):
 
 
 def main():
-    flows = "5"
+    flows = "1"
     args = arg_parser.sender_first()
 
     cc_repo = path.join(context.third_party_dir, 'indigo_a3c_test')

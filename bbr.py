@@ -50,7 +50,7 @@ def run_flows(cmd, flows, port0, port_idx):
     commands = []
     for port in range(port0, port0 + flows):
         cur_cmd = copy.deepcopy(cmd)
-        cur_cmd[port_idx] = port
+        cur_cmd[port_idx] = str(port)
         commands.append(cmd)
     run_cmds_together(commands=commands)
 
@@ -69,13 +69,13 @@ def main():
 
     if args.option == 'receiver':
         cmd = ['iperf', '-Z', 'bbr', '-s', '-p', 0]
-        run_flows(cmd, flows, args.port, -1)
+        run_flows(cmd, flows, int(args.port), -1)
         return
 
     if args.option == 'sender':
         cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', 0,
                '-t', '75']
-        run_flows(cmd, flows, args.port, -3)
+        run_flows(cmd, flows, int(args.port), -3)
         return
 
 
