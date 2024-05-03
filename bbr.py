@@ -7,7 +7,7 @@ import context
 from helpers import kernel_ctl
 import sys
 from concurrent.futures import ThreadPoolExecutor
-import concurrent
+import concurrent, copy
 
 
 def setup_bbr():
@@ -46,6 +46,15 @@ def run_cmds_together(commands):
     print("All commands completed.")
 
 
+def run_flows(cmd, flows, port0, port_idx):
+    commands = []
+    for port in range(port0, port0 + flows):
+        cur_cmd = copy.deepcopy(cmd)
+        cur_cmd[port_idx] = port
+        commands.append(cmd)
+    run_cmds_together(commands=commands)
+
+
 def main():
     flows = 5
     args = arg_parser.receiver_first()
@@ -59,24 +68,14 @@ def main():
         return
 
     if args.option == 'receiver':
-        commands = []
-        port0 = int(args.port)
-        for port in range(port0, port0 + flows):
-            cmd = ['iperf', '-Z', 'bbr', '-s', '-p', str(port)]
-            commands.append(cmd)
-        run_cmds_together(commands=commands)
+        cmd = ['iperf', '-Z', 'bbr', '-s', '-p', 0]
+        run_flows(cmd, flows, args.port, -1)
         return
 
     if args.option == 'sender':
-        commands = []
-        port0 = int(args.port)
-        for port in range(port0, port0 + flows):
-            cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', str(port),
-                   '-t', '75']
-            commands.append(cmd)
-
-            sys.stderr.write(str(cmd))
-        run_cmds_together(commands=commands)
+        cmd = ['iperf', '-Z', 'bbr', '-c', args.ip, '-p', 0,
+               '-t', '75']
+        run_flows(cmd, flows, args.port, -3)
         return
 
 
